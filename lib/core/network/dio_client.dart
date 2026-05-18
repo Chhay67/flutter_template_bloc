@@ -12,7 +12,6 @@ import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import '../exception/app_exception.dart';
 import '../storage/token_storage.dart';
 import 'interceptors/authorization_interceptor.dart';
-import 'interceptors/cancel_duplicate_requests_interceptor.dart';
 import 'interceptors/refresh_token_interceptor.dart';
 
 class DioClient {

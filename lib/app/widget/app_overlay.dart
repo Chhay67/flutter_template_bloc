@@ -1,60 +1,83 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../bloc/app_session_cubit/app_session_cubit.dart';
 import '../bloc/app_loading_cubit/app_loading_cubit.dart';
 
 class AppOverlay extends StatelessWidget {
-  const AppOverlay({
-    super.key,
-    required this.child,
-  });
+  const AppOverlay({super.key, required this.child});
 
   final Widget? child;
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        child ?? const SizedBox.shrink(),
-        const _CustomLoadingWidget(),
-        //_NoInternetBanner()
-      ],
+    return BlocSelector<AppSessionCubit, SessionState, bool>(
+      selector: (state) {
+        return state is SessionInitial || state is SessionLoading;
+      },
+      builder: (context, isBooting) {
+        if (isBooting) {
+          return const _AppSplashPage();
+        }
+
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            child ?? const SizedBox.shrink(),
+            const _AppLoadingOverlay(),
+          ],
+        );
+      },
     );
   }
 }
 
-class _CustomLoadingWidget extends StatelessWidget {
-  const _CustomLoadingWidget();
+class _AppSplashPage extends StatelessWidget {
+  const _AppSplashPage();
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AppLoadingCubit, int>(
-      buildWhen: (previous, current) {
-        return (previous > 0) != (current > 0);
-      },
-      builder: (context, count) {
-        if (count <= 0) return const SizedBox.shrink();
+    return const Scaffold(
+      body: Center(
+        child: Text(
+          'My splash screen App',
+          style: TextStyle(
+            fontSize: 28,
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+}
 
+class _AppLoadingOverlay extends StatelessWidget {
+  const _AppLoadingOverlay();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocSelector<AppLoadingCubit, int, bool>(
+      selector: (state) {
+        return state > 0;
+      },
+      builder: (context, isLoading) {
+        if (!isLoading) return const SizedBox.shrink();
         return const Stack(
           children: [
-            ModalBarrier(
-              dismissible: false,
-              color: Colors.black54,
-            ),
+            ModalBarrier(dismissible: false, color: Colors.black54),
             Center(
               child: SizedBox(
                 width: 48,
                 height: 48,
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                ),
+                child: CircularProgressIndicator(color: Colors.white),
               ),
             ),
           ],
         );
       },
     );
+
   }
 }
 

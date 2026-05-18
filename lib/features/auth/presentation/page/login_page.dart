@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_template_bloc/app/route/routes.dart';
 import 'package:flutter_template_bloc/core/di/init_dependencies.dart';
 import 'package:flutter_template_bloc/core/utils/app_snack_bar.dart';
 import 'package:flutter_template_bloc/features/auth/presentation/cubit/login_cubit/login_cubit.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../widgets/auth_card.dart';
 import '../widgets/auth_text_field.dart';
@@ -189,12 +191,7 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                             GestureDetector(
                               onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const RegisterPage(),
-                                  ),
-                                );
+                                context.goNamed(Routes.register.name);
                               },
                               child: const Text(
                                 'Register',

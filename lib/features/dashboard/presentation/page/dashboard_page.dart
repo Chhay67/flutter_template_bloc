@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_template_bloc/features/dashboard/presentation/bloc/user_profile_cubit/user_profile_cubit.dart';
 
+import '../../../../core/di/init_dependencies.dart';
 import '../bloc/products_cubit/products_cubit.dart';
 
 class DashboardPage extends StatelessWidget {
@@ -9,8 +10,18 @@ class DashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(children: [ProfileView(), ProductsListView()]),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<ProductsCubit>(
+          create: (_) => serviceLocator<ProductsCubit>()..getProducts(),
+        ),
+        BlocProvider<UserProfileCubit>(
+          create: (context) => serviceLocator<UserProfileCubit>()..fetchUser(),
+        ),
+      ],
+      child: SingleChildScrollView(
+        child: Column(children: [ProfileView(), ProductsListView()]),
+      ),
     );
   }
 }

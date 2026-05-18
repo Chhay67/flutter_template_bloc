@@ -39,7 +39,7 @@ class RefreshTokenInterceptor extends Interceptor {
     _isRefreshing = true;
     _pendingRequests.add((handler: handler, options: err.requestOptions));
 
-    await _tryRefreshToken().then((success) async {
+    await _tryFakeRefreshToken().then((success) async {
       _isRefreshing = false;
       final pending = List.of(_pendingRequests);
       _pendingRequests.clear();
@@ -72,7 +72,9 @@ class RefreshTokenInterceptor extends Interceptor {
   Future<void> _onRefreshFailed() async {
     _appSessionCubit.forceLogout();
   }
-
+  Future<bool> _tryFakeRefreshToken() async {
+   return false;
+  }
   Future<bool> _tryRefreshToken() async {
     try {
       AppLogger.info("tryRefreshToken...");

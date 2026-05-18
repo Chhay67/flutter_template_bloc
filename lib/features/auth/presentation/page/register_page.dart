@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_template_bloc/core/di/init_dependencies.dart';
 import 'package:flutter_template_bloc/features/auth/presentation/cubit/register_cubit/register_cubit.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../app/route/routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/app_snack_bar.dart';
 import '../widgets/auth_card.dart';
@@ -181,7 +182,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              Navigator.pop(context);
+                              context.goNamed(Routes.login.name);
                             },
                             child: const Text(
                               'Login',

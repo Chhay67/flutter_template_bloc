@@ -31,6 +31,7 @@ class AppSessionCubit extends Cubit<SessionState> {
   Future<void> onAppStart() async {
     try {
       emit(const SessionLoading());
+      await Future.delayed(Duration(seconds: 2));
       final bool hasToken = await _getSavedSessionUseCase.hasToken();
       if(!hasToken){
         throw CacheException(message: 'Session restore failed.');

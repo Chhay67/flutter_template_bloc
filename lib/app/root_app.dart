@@ -1,16 +1,30 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_template_bloc/app/bloc/app_loading_cubit/app_loading_cubit.dart';
 import 'package:flutter_template_bloc/app/route/app_router.dart';
 import 'package:flutter_template_bloc/app/widget/app_overlay.dart';
+import 'package:flutter_template_bloc/core/mixin/after_build_mixin.dart';
 import 'package:flutter_template_bloc/core/theme/app_themes.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/di/init_dependencies.dart';
 import 'bloc/app_session_cubit/app_session_cubit.dart';
 
-class RootApp extends StatelessWidget {
+class RootApp extends StatefulWidget {
   const RootApp({super.key});
+
+  @override
+  State<RootApp> createState() => _RootAppState();
+}
+
+class _RootAppState extends State<RootApp>{
+  @override
+  void initState() {
+    super.initState();
+    unawaited(serviceLocator<AppSessionCubit>().onAppStart());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,4 +46,6 @@ class RootApp extends StatelessWidget {
       ),
     );
   }
+
+
 }
