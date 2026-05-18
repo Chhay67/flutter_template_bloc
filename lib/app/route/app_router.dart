@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_template_bloc/app/route/guards.dart';
 import 'package:flutter_template_bloc/app/route/routes.dart';
+import 'package:flutter_template_bloc/app/route/utils/custom_go_route.dart';
 import 'package:flutter_template_bloc/app/route/utils/refresh_listenable.dart';
+import 'package:flutter_template_bloc/core/enum/user_role_enum.dart';
 import 'package:flutter_template_bloc/features/auth/presentation/page/login_page.dart';
 import 'package:flutter_template_bloc/features/auth/presentation/page/register_page.dart';
 import 'package:go_router/go_router.dart';
@@ -11,6 +14,7 @@ import '../../features/settings/presentation/settings_page.dart';
 import '../bloc/app_session_cubit/app_session_cubit.dart';
 import '../widget/app_error_page.dart';
 import '../widget/main_scaffold_page.dart';
+import '../widget/unauthorized_page.dart';
 
 final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
@@ -18,50 +22,40 @@ final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
 class AppGoRouter {
   AppGoRouter._();
 
-  static final GlobalKey<NavigatorState> rootNavKey = GlobalKey<NavigatorState>();
+  static final GlobalKey<NavigatorState> rootNavKey =
+      GlobalKey<NavigatorState>();
 
-  static final GlobalKey<NavigatorState> shellNavKey = GlobalKey<NavigatorState>();
+  static final GlobalKey<NavigatorState> shellNavKey =
+      GlobalKey<NavigatorState>();
 
-  static GoRouter createRouter({required AppSessionCubit appSessionCubit}) {
+  static GoRouter createRouter({required AppSessionCubit appSession}) {
     return GoRouter(
       navigatorKey: rootNavKey,
       debugLogDiagnostics: true,
       initialLocation: Routes.dashboard.path,
-      refreshListenable: GoRouterRefreshStream([appSessionCubit.stream]),
-      redirect: (context, state) {
-        final session = appSessionCubit.state;
-        final location = state.uri.path;
-        final isLogin = location == Routes.login.path;
-        final isDashboard = location == Routes.dashboard.path;
-        if (session is SessionUnauthenticated) {
-          return isLogin ? null : Routes.login.path;
-        }
+      refreshListenable: GoRouterRefreshStream([appSession.stream]),
 
-        if(session is SessionAuthenticated){
-          return isDashboard ? null :  Routes.dashboard.path;
-        }
-        return null;
-      },
       routes: [
-        GoRoute(
+        CustomGoRoute(
           path: Routes.login.path,
           name: Routes.login.name,
-          // redirect: (context, state) {
-          //   final session = appSessionCubit.state;
-          //   final location = state.uri.path;
-          //   final isDashboard = location == Routes.dashboard.path;
-          //   if(session is SessionAuthenticated){
-          //
-          //     return isDashboard ? null :  Routes.dashboard.path;
-          //   }
-          //   return null;
-          // },
+          appSession: appSession,
+          guards: [guestGuard],
           builder: (context, state) => const LoginPage(),
         ),
-        GoRoute(
+        CustomGoRoute(
           path: Routes.register.path,
           name: Routes.register.name,
+          appSession: appSession,
+          guards: [guestGuard],
           builder: (context, state) => const RegisterPage(),
+        ),
+        CustomGoRoute(
+          path: Routes.unauthorized.path,
+          name: Routes.unauthorized.name,
+          appSession: appSession,
+          guards: [authGuard],
+          builder: (context, state) => const UnauthorizedPage(),
         ),
         ShellRoute(
           navigatorKey: shellNavKey,
@@ -78,17 +72,24 @@ class AppGoRouter {
             );
           },
 
-
-
           routes: [
-            GoRoute(
+            CustomGoRoute(
               path: Routes.dashboard.path,
               name: Routes.dashboard.name,
+              appSession: appSession,
+              guards: [authGuard],
               builder: (context, state) => const DashboardPage(),
             ),
-            GoRoute(
+            CustomGoRoute(
               path: Routes.settings.path,
               name: Routes.settings.name,
+              appSession: appSession,
+              guards: [
+                authGuard,
+                roleGuard(
+                  allowedRoles: {UserRoleEnum.admin},
+                ),
+              ],
               builder: (context, state) => const SettingsPage(),
             ),
           ],

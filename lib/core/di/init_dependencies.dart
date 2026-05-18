@@ -139,7 +139,7 @@ void _initAppBootCore() {
   if (!serviceLocator.isRegistered<GoRouter>()) {
     serviceLocator.registerLazySingleton<GoRouter>(
       () => AppGoRouter.createRouter(
-        appSessionCubit: serviceLocator<AppSessionCubit>(),
+        appSession: serviceLocator<AppSessionCubit>(),
       ),
     );
   }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_template_bloc/features/dashboard/presentation/bloc/user_profile_cubit/user_profile_cubit.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../app/route/routes.dart';
 import '../../../../core/di/init_dependencies.dart';
 import '../bloc/products_cubit/products_cubit.dart';
 
@@ -20,7 +22,9 @@ class DashboardPage extends StatelessWidget {
         ),
       ],
       child: SingleChildScrollView(
-        child: Column(children: [ProfileView(), ProductsListView()]),
+        child: Column(children: [ProfileView(), ProductsListView(),ElevatedButton(onPressed: () {
+          context.go(Routes.settings.path);
+        }, child: Text('go to settings'))]),
       ),
     );
   }
