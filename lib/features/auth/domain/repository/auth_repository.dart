@@ -6,9 +6,9 @@ import 'package:flutter_template_bloc/core/session/domain/entities/user_entity.d
 import '../entities/login_response_entity.dart';
 
 abstract class AuthRepository {
-  Future<UserEntity> register({required String email,required String password,required String name});
+  Future<UserEntity> register({required String userName,required String password,required String name});
 
-  Future<LoginResponseEntity> login({required String email,required String password});
+  Future<LoginResponseEntity> login({required String userName,required String password});
 
   Future<TokenEntity> refreshToken({required String refreshToken});
 

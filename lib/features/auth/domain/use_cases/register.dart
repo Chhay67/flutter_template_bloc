@@ -11,15 +11,15 @@ class RegisterUseCase extends UseCase<UserEntity,RegisterParams> {
 
   @override
   Future<UserEntity> call(RegisterParams params) async{
-   return await repository.register(email: params.email, password: params.password, name: params.name);
+   return await repository.register(userName: params.userName, password: params.password, name: params.name);
   }
 }
 
 
 
 class RegisterParams {
-  RegisterParams({required this.email,required this.password,required this.name});
-  final String email;
+  RegisterParams({required this.userName,required this.password,required this.name});
+  final String userName;
   final String password;
   final String name;
 }

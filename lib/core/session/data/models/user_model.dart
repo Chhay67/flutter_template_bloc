@@ -3,24 +3,22 @@ import '../../domain/entities/user_entity.dart';
 class UserModel extends UserEntity {
   const UserModel({
     required super.name,
-    required super.email,
+    required super.username,
     required super.id,
-    required super.age,
   });
 
   factory UserModel.fromJson(Map<dynamic, dynamic> json) {
     return UserModel(
       id: json['id'] ?? '',
-      name: json['name'] ?? '',
-      email: json['email'],
-      age: json['age'],
+      username: json['username'] ?? '',
+      name: json['name'] ?? "",
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {'id': id, 'email': email, 'age': age, 'name': name};
+    return {'id': id, 'name': name, 'username' :username };
   }
 
   @override
-  List<Object?> get props => [name, email, id, age];
+  List<Object?> get props => [name, username, id, ];
 }

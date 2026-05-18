@@ -1,8 +1,8 @@
-import 'package:bloc/bloc.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_template_bloc/app/bloc/app_session_cubit/app_session_cubit.dart';
 import 'package:flutter_template_bloc/core/utils/app_logger.dart';
 import 'package:flutter_template_bloc/features/auth/domain/use_cases/login.dart';
-import 'package:meta/meta.dart';
 
 part 'login_state.dart';
 
@@ -15,11 +15,11 @@ class LoginCubit extends Cubit<LoginState> {
       _appSessionCubit = appSessionCubit,
         super(LoginInitial());
 
-  Future<void> login({required String email, required String password}) async {
+  Future<void> login({required String userName, required String password}) async {
     try {
       emit(LoginLoading());
       final result = await _loginUseCase.call(
-        LoginParams(password: password, email: email),
+        LoginParams(password: password, userName: userName),
       );
       await _appSessionCubit.loginSuccess(
         user: result.user,

@@ -15,6 +15,8 @@ abstract class SessionLocalDataSource {
   Future<TokenModel?> getSavedToken();
 
   Future<void> clearSavedToken();
+
+  Future<bool> hasToken();
 }
 
 class SessionLocalDataSourceImpl implements SessionLocalDataSource {
@@ -42,17 +44,22 @@ class SessionLocalDataSourceImpl implements SessionLocalDataSource {
   }
 
   @override
-  Future<UserModel?> getSavedUser()async {
-  return userStorage.getUser();
+  Future<UserModel?> getSavedUser() async {
+    return userStorage.getUser();
   }
 
   @override
-  Future<void> savedToken({required TokenModel token})async {
+  Future<void> savedToken({required TokenModel token}) async {
     return await tokenStorage.saveToken(token);
   }
 
   @override
-  Future<void> savedUser({required UserModel user}) async{
+  Future<void> savedUser({required UserModel user}) async {
     return await userStorage.saveUser(user);
+  }
+
+  @override
+  Future<bool> hasToken() async {
+    return tokenStorage.hasToken;
   }
 }

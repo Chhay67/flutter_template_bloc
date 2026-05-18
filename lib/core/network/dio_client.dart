@@ -5,14 +5,18 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_template_bloc/app/bloc/app_loading_cubit/app_loading_cubit.dart';
+import 'package:flutter_template_bloc/app/bloc/app_session_cubit/app_session_cubit.dart';
 import 'package:flutter_template_bloc/core/network/interceptors/loading_interceptor.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 import '../exception/app_exception.dart';
 import '../storage/token_storage.dart';
+import 'interceptors/authorization_interceptor.dart';
+import 'interceptors/cancel_duplicate_requests_interceptor.dart';
+import 'interceptors/refresh_token_interceptor.dart';
 
 class DioClient {
-  DioClient({required String baseUrl, required this.tokenStorage,required this.appLoadingCubit})
+  DioClient({required String baseUrl, required this.tokenStorage,required this.appLoadingCubit,required this.appSessionCubit})
       : _dio = Dio(
           BaseOptions(
             baseUrl: baseUrl,
@@ -29,8 +33,8 @@ class DioClient {
     _dio.interceptors.addAll([
       //LocaleInterceptor(),
       LoadingInterceptor(appLoadingCubit: appLoadingCubit),
-      // AuthorizationInterceptor(tokenStorage: _tokenStorage),
-      // RefreshTokenInterceptor(tokenStorage: _tokenStorage,dio: _dio),
+      AuthorizationInterceptor(tokenStorage),
+      RefreshTokenInterceptor(tokenStorage: tokenStorage,dio: _dio, appSessionCubit: appSessionCubit),
       // CancelDuplicateRequestsInterceptor(),
     ]);
 
@@ -54,6 +58,8 @@ class DioClient {
   Dio get dio => _dio;
   final TokenStorage tokenStorage;
   final AppLoadingCubit appLoadingCubit;
+
+  final AppSessionCubit appSessionCubit;
 
   Future<Response<T>> get<T>(
       String path, {

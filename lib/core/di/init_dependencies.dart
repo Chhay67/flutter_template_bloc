@@ -1,3 +1,11 @@
+import 'package:flutter_template_bloc/features/auth/domain/use_cases/register.dart';
+import 'package:flutter_template_bloc/features/auth/presentation/cubit/register_cubit/register_cubit.dart';
+import 'package:flutter_template_bloc/features/dashboard/data/data_sources/remote_data_source.dart';
+import 'package:flutter_template_bloc/features/dashboard/data/repository/dashboard_repository_impl.dart';
+import 'package:flutter_template_bloc/features/dashboard/domain/repository/dashboard_repository.dart';
+import 'package:flutter_template_bloc/features/dashboard/domain/use_case/get_products.dart';
+import 'package:flutter_template_bloc/features/dashboard/domain/use_case/get_user_profile.dart';
+import 'package:flutter_template_bloc/features/dashboard/presentation/bloc/user_profile_cubit/user_profile_cubit.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
@@ -9,7 +17,9 @@ import '../../features/auth/data/repository/auth_repository_impl.dart';
 import '../../features/auth/domain/repository/auth_repository.dart';
 import '../../features/auth/domain/use_cases/login.dart';
 import '../../features/auth/domain/use_cases/logout.dart';
+import '../../features/auth/domain/use_cases/refresh_token.dart';
 import '../../features/auth/presentation/cubit/login_cubit/login_cubit.dart';
+import '../../features/dashboard/presentation/bloc/products_cubit/products_cubit.dart';
 import '../config/app_config.dart';
 import '../network/dio_client.dart';
 import '../service/hive_service.dart';
@@ -34,22 +44,20 @@ Future<void> initBootDependencies() async {
 }
 
 Future<void> initLazyDependencies() async {
- await _initNetwork();
+  await _initNetwork();
 
-  initAuthDependencies();
-  // initProductDependencies();
+  _initAuthDependencies();
+  _initProductDependencies();
 }
 
 Future<void> _initCoreServices() async {
   if (!serviceLocator.isRegistered<HiveService>()) {
-    serviceLocator.registerLazySingleton<HiveService>(
-          () => HiveService(),
-    );
+    serviceLocator.registerLazySingleton<HiveService>(() => HiveService());
   }
 
   if (!serviceLocator.isRegistered<SecureHiveService>()) {
     serviceLocator.registerLazySingleton<SecureHiveService>(
-          () => SecureHiveService(),
+      () => SecureHiveService(),
     );
   }
 }
@@ -61,7 +69,7 @@ Future<void> _initCoreStorage() async {
     final tokenBox = await secureHive.openEncryptedBox(TokenStorage.boxName);
 
     serviceLocator.registerLazySingleton<TokenStorage>(
-          () => TokenStorage(tokenBox),
+      () => TokenStorage(tokenBox),
     );
   }
 
@@ -69,47 +77,49 @@ Future<void> _initCoreStorage() async {
     final userBox = await secureHive.openEncryptedBox(UserStorage.boxName);
 
     serviceLocator.registerLazySingleton<UserStorage>(
-          () => UserStorage(userBox),
+      () => UserStorage(userBox),
     );
   }
 }
 
 void _initSessionDependencies() {
   serviceLocator.registerLazySingleton<SessionLocalDataSource>(
-        () => SessionLocalDataSourceImpl(
+    () => SessionLocalDataSourceImpl(
       tokenStorage: serviceLocator<TokenStorage>(),
       userStorage: serviceLocator<UserStorage>(),
     ),
   );
 
   serviceLocator.registerLazySingleton<SessionRepository>(
-        () => SessionRepositoryImpl(
+    () => SessionRepositoryImpl(
       sessionLocalDataSource: serviceLocator<SessionLocalDataSource>(),
     ),
   );
 
   serviceLocator.registerLazySingleton<GetSavedSessionUseCase>(
-        () => GetSavedSessionUseCase(repository:  serviceLocator<SessionRepository>()),
+    () =>
+        GetSavedSessionUseCase(repository: serviceLocator<SessionRepository>()),
   );
 
   serviceLocator.registerLazySingleton<SaveSessionUseCase>(
-        () => SaveSessionUseCase( repository: serviceLocator<SessionRepository>()),
+    () => SaveSessionUseCase(repository: serviceLocator<SessionRepository>()),
   );
 
   serviceLocator.registerLazySingleton<ClearSessionUseCase>(
-        () => ClearSessionUseCase(repository: serviceLocator<SessionRepository>()),
+    () => ClearSessionUseCase(repository: serviceLocator<SessionRepository>()),
   );
 }
+
 void _initAppBootCore() {
   if (!serviceLocator.isRegistered<AppLoadingCubit>()) {
     serviceLocator.registerLazySingleton<AppLoadingCubit>(
-          () => AppLoadingCubit(),
+      () => AppLoadingCubit(),
     );
   }
 
   if (!serviceLocator.isRegistered<AppSessionCubit>()) {
     serviceLocator.registerLazySingleton<AppSessionCubit>(
-          () => AppSessionCubit(
+      () => AppSessionCubit(
         getSavedSessionUseCase: serviceLocator<GetSavedSessionUseCase>(),
         saveSessionUseCase: serviceLocator<SaveSessionUseCase>(),
         clearSessionUseCase: serviceLocator<ClearSessionUseCase>(),
@@ -119,50 +129,87 @@ void _initAppBootCore() {
 
   if (!serviceLocator.isRegistered<GoRouter>()) {
     serviceLocator.registerLazySingleton<GoRouter>(
-          () => AppGoRouter.createRouter(
+      () => AppGoRouter.createRouter(
         appSessionCubit: serviceLocator<AppSessionCubit>(),
       ),
     );
   }
 }
 
-Future<void> _initNetwork() async{
+Future<void> _initNetwork() async {
   if (!serviceLocator.isRegistered<DioClient>()) {
     serviceLocator.registerLazySingleton<DioClient>(
-          () => DioClient(
+      () => DioClient(
         baseUrl: AppConfig.baseUrl,
         tokenStorage: serviceLocator<TokenStorage>(),
         appLoadingCubit: serviceLocator<AppLoadingCubit>(),
+        appSessionCubit: serviceLocator<AppSessionCubit>(),
       ),
     );
   }
 }
 
-void initAuthDependencies() {
+void _initAuthDependencies() {
   serviceLocator.registerLazySingleton<AuthRemoteDataSource>(
-        () => AuthRemoteDataSourceImpl(
-      dioClient: serviceLocator<DioClient>(),
-    ),
+    () => AuthRemoteDataSourceImpl(dioClient: serviceLocator<DioClient>()),
   );
 
   serviceLocator.registerLazySingleton<AuthRepository>(
-        () => AuthRepositoryImpl(
+    () => AuthRepositoryImpl(
       remoteDataSource: serviceLocator<AuthRemoteDataSource>(),
     ),
   );
 
   serviceLocator.registerLazySingleton<LoginUseCase>(
-        () => LoginUseCase(repository: serviceLocator<AuthRepository>()),
+    () => LoginUseCase(repository: serviceLocator<AuthRepository>()),
   );
 
   serviceLocator.registerLazySingleton<LogoutUseCase>(
-        () => LogoutUseCase(repository: serviceLocator<AuthRepository>()),
+    () => LogoutUseCase(repository: serviceLocator<AuthRepository>()),
+  );
+  serviceLocator.registerLazySingleton<RegisterUseCase>(
+    () => RegisterUseCase(repository: serviceLocator<AuthRepository>()),
+  );
+
+  serviceLocator.registerLazySingleton<RefreshTokenUseCase>(
+    () => RefreshTokenUseCase(repository: serviceLocator<AuthRepository>()),
+  );
+  serviceLocator.registerFactory<RegisterCubit>(
+    () => RegisterCubit(serviceLocator<RegisterUseCase>()),
   );
 
   serviceLocator.registerFactory<LoginCubit>(
-        () => LoginCubit(
+    () => LoginCubit(
       loginUseCase: serviceLocator<LoginUseCase>(),
       appSessionCubit: serviceLocator<AppSessionCubit>(),
     ),
+  );
+}
+
+void _initProductDependencies() {
+  serviceLocator.registerLazySingleton<DashboardRemoteDataSource>(
+    () => DashboardRemoteDataSourceImpl(dioClient: serviceLocator<DioClient>()),
+  );
+
+  serviceLocator.registerLazySingleton<DashboardRepository>(
+    () => DashboardRepositoryImpl(
+      remoteDataSource: serviceLocator<DashboardRemoteDataSource>(),
+    ),
+  );
+
+  serviceLocator.registerLazySingleton<GetProductsUseCase>(
+    () => GetProductsUseCase(repository: serviceLocator<DashboardRepository>()),
+  );
+
+  serviceLocator.registerLazySingleton<GetUserProfileUseCase>(
+        () => GetUserProfileUseCase(repository: serviceLocator<DashboardRepository>()),
+  );
+
+  serviceLocator.registerFactory<ProductsCubit>(
+    () => ProductsCubit(serviceLocator<GetProductsUseCase>()),
+  );
+
+  serviceLocator.registerFactory<UserProfileCubit>(
+        () => UserProfileCubit(serviceLocator<GetUserProfileUseCase>()),
   );
 }

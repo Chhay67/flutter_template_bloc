@@ -9,4 +9,6 @@ abstract class SessionRepository {
   Future<void> saveSession({required SessionEntity session});
 
   Future<void> clearSession();
+
+  Future<bool> hasToken();
 }

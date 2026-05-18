@@ -14,7 +14,7 @@ class AppConfig {
   static String _getBaseUrl(FlavorEnum flavor) {
     switch (flavor) {
       case FlavorEnum.dev:
-        return 'http://127.0.0.1:5000/api/';
+        return 'https://nestjs-auth-api-production.up.railway.app';
 
       case FlavorEnum.staging:
         return 'https://staging-api.example.com';

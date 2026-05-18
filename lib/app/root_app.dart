@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_template_bloc/app/bloc/app_loading_cubit/app_loading_cubit.dart';
 import 'package:flutter_template_bloc/app/route/app_router.dart';
 import 'package:flutter_template_bloc/app/widget/app_overlay.dart';
+import 'package:flutter_template_bloc/core/theme/app_themes.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/di/init_dependencies.dart';
@@ -26,6 +27,7 @@ class RootApp extends StatelessWidget {
         scaffoldMessengerKey: rootScaffoldMessengerKey,
         title: 'Flutter Clean Architecture with Bloc Demo',
         routerConfig: serviceLocator<GoRouter>(),
+        theme: AppThemes.lightTheme,
         builder: (context, child) => AppOverlay(child: child),
       ),
     );

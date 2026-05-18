@@ -10,8 +10,8 @@ class AuthRepositoryImpl implements AuthRepository{
   AuthRepositoryImpl({required this.remoteDataSource});
   final AuthRemoteDataSource remoteDataSource;
   @override
-  Future<LoginResponseEntity> login({required String email, required String password})async {
-    return await remoteDataSource.login(email: email, password: password);
+  Future<LoginResponseEntity> login({required String userName, required String password})async {
+    return await remoteDataSource.login(userName: userName, password: password);
   }
 
   @override
@@ -25,7 +25,7 @@ class AuthRepositoryImpl implements AuthRepository{
   }
 
   @override
-  Future<UserEntity> register({required String email, required String password,required String name}) async{
-    return await remoteDataSource.register(email: email, password: password, name: name);
+  Future<UserEntity> register({required String userName, required String password,required String name}) async{
+    return await remoteDataSource.register(userName: userName, password: password, name: name);
   }
 }

@@ -4,26 +4,18 @@ import 'package:flutter_template_bloc/core/session/data/models/user_model.dart';
 class UserEntity extends Equatable {
   const UserEntity({
     required this.name,
-    required this.email,
     required this.id,
-    required this.age,
+    required this.username,
   });
 
   final String id;
   final String name;
-  final int? age;
-
-  final String? email;
+  final String username;
 
   UserModel toModel() {
-    return UserModel(
-      id: id,
-      name: name,
-      age: age,
-      email: email,
-    );
+    return UserModel(id: id, name: name, username: username);
   }
 
   @override
-  List<Object?> get props => [name, email, id, age];
+  List<Object?> get props => [name, username, id];
 }

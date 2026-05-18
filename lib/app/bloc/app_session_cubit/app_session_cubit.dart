@@ -9,9 +9,9 @@ import 'package:flutter_template_bloc/core/session/domain/use_cases/clear_sessio
 import 'package:flutter_template_bloc/core/session/domain/use_cases/get_saved_session.dart';
 import 'package:flutter_template_bloc/core/session/domain/use_cases/save_session.dart';
 import 'package:flutter_template_bloc/core/utils/app_logger.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 
 import '../../../core/use_cases/usecase.dart';
-import '../../route/app_router.dart';
 
 part 'app_session_state.dart';
 
@@ -31,9 +31,23 @@ class AppSessionCubit extends Cubit<SessionState> {
   Future<void> onAppStart() async {
     try {
       emit(const SessionLoading());
+      final bool hasToken = await _getSavedSessionUseCase.hasToken();
+      if(!hasToken){
+        throw CacheException(message: 'Session restore failed.');
+      }
       final session = await _getSavedSessionUseCase.call(const NoParams());
       if (session == null) {
         throw CacheException(message: 'Session restore failed.');
+      }
+      final DateTime accessTokenExpirationDate = JwtDecoder.getExpirationDate(session.token.accessToken);
+      final DateTime refreshTokenExpirationDate = JwtDecoder.getExpirationDate(session.token.refreshToken);
+      AppLogger.info("accessTokenTime: $accessTokenExpirationDate, refreshTokenTime: $refreshTokenExpirationDate");
+      final isAccessTokenExpired = JwtDecoder.isExpired(session.token.accessToken);
+      final isRefreshTokenExpired = JwtDecoder.isExpired(session.token.refreshToken);
+      AppLogger.info("isAccessTokenExpired: $isAccessTokenExpired, isRefreshTokenExpired: $isRefreshTokenExpired");
+
+      if (isRefreshTokenExpired) {
+        throw CacheException(message: 'Session expired.');
       }
       emit(SessionAuthenticated(session: session));
     } catch (error, stackTrace) {
@@ -61,7 +75,5 @@ class AppSessionCubit extends Cubit<SessionState> {
     emit(SessionUnauthenticated(reason: reason));
   }
 
-  // Future<void> clearSession() async {
-  //   await forceLogout();
-  // }
+
 }

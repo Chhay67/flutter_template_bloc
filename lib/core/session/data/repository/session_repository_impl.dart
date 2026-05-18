@@ -41,4 +41,9 @@ class SessionRepositoryImpl implements SessionRepository {
       throw CacheException(message: error.toString());
     }
   }
+
+  @override
+  Future<bool> hasToken() async{
+   return sessionLocalDataSource.hasToken();
+  }
 }

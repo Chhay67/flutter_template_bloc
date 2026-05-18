@@ -11,14 +11,14 @@ class LoginUseCase extends UseCase<LoginResponseEntity,LoginParams> {
   final AuthRepository repository;
   @override
   Future<LoginResponseEntity> call(LoginParams params) async{
-   return await repository.login(email: params.email, password: params.password);
+   return await repository.login(userName: params.userName, password: params.password);
   }
 }
 
 
 
 class LoginParams {
-  LoginParams({required this.password,required this.email});
-  final String email;
+  LoginParams({required this.password,required this.userName});
+  final String userName;
   final String password;
 }

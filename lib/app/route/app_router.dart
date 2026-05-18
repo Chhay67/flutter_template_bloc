@@ -1,12 +1,15 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_template_bloc/app/route/routes.dart';
 import 'package:flutter_template_bloc/app/route/utils/refresh_listenable.dart';
+import 'package:flutter_template_bloc/core/di/init_dependencies.dart';
 import 'package:flutter_template_bloc/features/auth/presentation/page/login_page.dart';
+import 'package:flutter_template_bloc/features/dashboard/presentation/bloc/user_profile_cubit/user_profile_cubit.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/extension/app_extension.dart';
-import '../../features/dashboard/presentation/dashboard_page.dart';
+import '../../features/dashboard/presentation/bloc/products_cubit/products_cubit.dart';
+import '../../features/dashboard/presentation/page/dashboard_page.dart';
 import '../../features/settings/presentation/settings_page.dart';
 import '../bloc/app_session_cubit/app_session_cubit.dart';
 import '../widget/app_error_page.dart';
@@ -86,7 +89,21 @@ class AppGoRouter {
             GoRoute(
               path: Routes.dashboard.path,
               name: Routes.dashboard.name,
-              builder: (context, state) => const DashboardPage(),
+              builder: (context, state) {
+                return MultiBlocProvider(
+                  providers: [
+                    BlocProvider<ProductsCubit>(
+                      create: (_) =>  serviceLocator<ProductsCubit>()..getProducts(),
+                    ),
+                    BlocProvider<UserProfileCubit>(
+                      create: (context) => serviceLocator<UserProfileCubit>()..fetchUser(),
+                    ),
+                  ],
+                  child: const DashboardPage(),
+                );
+
+
+              },
             ),
             GoRoute(
               path: Routes.settings.path,

@@ -33,7 +33,7 @@ class AppErrorPage extends StatelessWidget {
                 const Text(
                   'Oops! This page doesn’t exist.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600,color: Colors.black),
                 ),
                 const SizedBox(height: 8),
                 Text(
