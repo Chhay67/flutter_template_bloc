@@ -1,6 +1,8 @@
 
 import 'package:flutter/material.dart';
 
+import '../../../core/theme/app_colors.dart';
+
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
 
@@ -9,7 +11,14 @@ class DashboardPage extends StatelessWidget {
     return Center(
       child: Column(
         children: [
-          Text("DashboardPage",style: TextStyle(color: Colors.black),)
+          const Text(
+            'SmartNest',
+            style: TextStyle(
+              fontSize: 32,
+              fontWeight: FontWeight.bold,
+              color: AppColors.primary,
+            ),
+          ),
         ],
       ),
     );
